@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تشخيص الوسيط</title>
+<style>
+  body{background:#000;color:#fff;font-family:sans-serif;padding:20px;line-height:1.7;}
+  h1{font-size:20px;}
+  button{background:#FFD400;color:#000;border:none;padding:14px 20px;border-radius:10px;font-size:16px;font-weight:700;margin-bottom:16px;}
+  pre{background:#111;padding:14px;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:14px;border:1px solid #444;}
+  .ok{color:#00E676;}
+  .fail{color:#FF4D4D;}
+</style>
+</head>
+<body>
+<h1>تشخيص الوسيط الآمن (ibsar-vision)</h1>
+<p>هذي صفحة اختبار فقط، مو جزء من التطبيق. تختبر الاتصال بالوسيط مباشرة وتوضح الخطأ الفعلي لو صار.</p>
+<button onclick="runTest()">شغّلي الاختبار</button>
+<pre id="out">اضغطي الزر أعلاه للبدء...</pre>
+
+<script>
+const WORKER_URL = 'https://ibsar-vision.planora119sa.workers.dev';
+const TEST_IMAGE_B64 = "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAACAAIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDFoooryz7w/9k=";
+
+async function runTest(){
+  const out = document.getElementById('out');
+  out.textContent = 'جارٍ الاتصال بالوسيط...';
+  out.className = '';
+  try{
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ image: TEST_IMAGE_B64, mimeType: 'image/jpeg', lang: 'ar' })
+    });
+    const text = await res.text();
+    let pretty = text;
+    try{ pretty = JSON.stringify(JSON.parse(text), null, 2); }catch(e){}
+    out.textContent = 'HTTP Status: ' + res.status + '\n\n' + pretty;
+    out.className = res.ok ? 'ok' : 'fail';
+  }catch(e){
+    out.textContent = 'فشل الاتصال بالكامل (شبكة/CORS):\n' + String(e);
+    out.className = 'fail';
+  }
+}
+</script>
+</body>
+</html>
